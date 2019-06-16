@@ -1,8 +1,11 @@
 package life.antonio12.community12.community12.controller;
 
-import life.antonio12.community12.community12.controller.provider.GithubProvider;
+//import life.antonio12.community12.community12.controller.provider.GithubProvider;
+import life.antonio12.community12.community12.Provider.GithubProvider;
 import life.antonio12.community12.community12.dto.AccessTokenDTO;
 import life.antonio12.community12.community12.dto.GithubUser;
+import life.antonio12.community12.community12.mapper.UserMapper;
+import life.antonio12.community12.community12.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 /**
  * Created by Antonio on 2019/06/12
@@ -20,7 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 public class AuthorizeController {
 
     @Autowired
-    private life.antonio12.community12.community12.controller.provider.GithubProvider githubProvider;
+    private GithubProvider githubProvider;
+    //private life.antonio12.community12.community12.controller.provider.GithubProvider githubProvider;
 
     @Value("${github.client.id}")
     private String clientId;
@@ -28,6 +33,9 @@ public class AuthorizeController {
     private String clientSecret;
     @Value("${github.redirect.uri}")
     private String redirectUri;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @GetMapping("/callback")
     public String callback (@RequestParam(name="code") String code,
@@ -40,11 +48,20 @@ public class AuthorizeController {
         accessTokenDTO.setClient_id(clientId);
         accessTokenDTO.setClient_secret(clientSecret);
         String accessToken = githubProvider.getAccessToken(accessTokenDTO);
-        GithubUser user = githubProvider.getUser(accessToken);
+        GithubUser githubUser = githubProvider.getUser(accessToken);
 
-        if(user != null)
+        if(githubUser != null)
         {
-            request.getSession().setAttribute("user",user); //拿到session，set attribute， 把当前user对象放到session里面
+            User user = new User();
+
+            user.setName(githubUser.getName());
+            user.setToken(UUID.randomUUID().toString());
+            user.setAccountId(String.valueOf(githubUser.getId()));
+            user.setGmtCreate(System.currentTimeMillis());
+            user.setGmtModified(user.getGmtCreate());
+
+            userMapper.insert(user);
+            request.getSession().setAttribute("user",githubUser); //拿到session，set attribute， 把当前user对象放到session里面
             return "redirect:/"; // 回到主页
             //登陆成功
         }
