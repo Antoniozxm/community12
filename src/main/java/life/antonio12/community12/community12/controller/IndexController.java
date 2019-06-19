@@ -4,20 +4,19 @@ import life.antonio12.community12.community12.mapper.UserMapper;
 import life.antonio12.community12.community12.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
 /**
  *
  */
 @Controller
 public class IndexController {
     @Autowired
-    private UserMapper userMapper;  //访问数据库的user
+    private UserMapper userMapper;
+  //访问数据库的user
+
     @GetMapping("/")
 
     public String index(HttpServletRequest request){

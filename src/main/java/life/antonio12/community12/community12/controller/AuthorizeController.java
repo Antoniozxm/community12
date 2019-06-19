@@ -25,10 +25,10 @@ import java.util.UUID;
 
 public class AuthorizeController {
 
+
+    //private life.antonio12.community12.community12.controller.provider.GithubProvider githubProvider;
     @Autowired
     private GithubProvider githubProvider;
-    //private life.antonio12.community12.community12.controller.provider.GithubProvider githubProvider;
-
     @Value("${github.client.id}")
     private String clientId;
     @Value("${github.client.secret}")
@@ -44,6 +44,7 @@ public class AuthorizeController {
                             @RequestParam(name="state")String state,
                             //HttpServletRequest request,
                             HttpServletResponse response){   // Spring把上下文中的request放到方法里
+
         AccessTokenDTO accessTokenDTO = new AccessTokenDTO();
         accessTokenDTO.setCode(code);
         accessTokenDTO.setRedirect_uri(redirectUri);
@@ -56,7 +57,6 @@ public class AuthorizeController {
         if(githubUser != null)
         {
             User user = new User();
-
             user.setName(githubUser.getName());
             String token = UUID.randomUUID().toString();
             user.setToken(token);
@@ -64,11 +64,10 @@ public class AuthorizeController {
             user.setGmtCreate(System.currentTimeMillis());
             user.setGmtModified(user.getGmtCreate());
 
+
             userMapper.insert(user);
             //写入cookie
             response.addCookie(new Cookie(  "token", token));
-
-
 
             //request.getSession().setAttribute("user",githubUser); //拿到session，set attribute， 把当前user对象放到session里面
             return "redirect:/"; // 回到主页
